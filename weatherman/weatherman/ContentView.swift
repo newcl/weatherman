@@ -624,6 +624,14 @@ struct ContentView: View {
                                 LazyVStack(alignment: .leading, spacing: 8) {
                                     ForEach(weatherViewModel.alertItems) { alert in
                                         CompactAlertView(alert: alert, isActive: isActiveFire(alert))
+                                            .onTapGesture {
+                                                if alert.type == .fire {
+                                                    withAnimation {
+                                                        region.center = alert.coordinate
+                                                        region.span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                                                    }
+                                                }
+                                            }
                                     }
                                 }
                                 .padding(.horizontal)
@@ -696,20 +704,25 @@ struct WeatherView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Current Weather")
                 .font(.headline)
+                .foregroundColor(.black)
             
             HStack {
                 VStack(alignment: .leading) {
                     Text("\(Int(weather.main.temp))°C")
                         .font(.title)
+                        .foregroundColor(.black)
                     Text(weather.weather.first?.description.capitalized ?? "")
                         .font(.subheadline)
+                        .foregroundColor(.black)
                 }
                 
                 Spacer()
                 
                 VStack(alignment: .trailing) {
                     Text("Humidity: \(weather.main.humidity)%")
+                        .foregroundColor(.black)
                     Text("Wind: \(Int(weather.wind.speed)) m/s")
+                        .foregroundColor(.black)
                 }
             }
         }
@@ -731,9 +744,10 @@ struct CompactAlertView: View {
                      alert.type == .thunder ? "Thunderstorm Alert" : "Weather Alert")
                     .font(.caption)
                     .fontWeight(.bold)
+                    .foregroundColor(.black)
                 Text(alert.description)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.black)
                     .lineLimit(2)
             }
             
@@ -746,6 +760,7 @@ struct CompactAlertView: View {
         .padding(8)
         .background(Color.white)
         .cornerRadius(8)
+        .contentShape(Rectangle())
     }
     
     private var iconName: String {
