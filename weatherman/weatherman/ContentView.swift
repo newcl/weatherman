@@ -622,16 +622,33 @@ struct ContentView: View {
                         content: {
                             ScrollView {
                                 LazyVStack(alignment: .leading, spacing: 8) {
-                                    ForEach(weatherViewModel.alertItems) { alert in
-                                        CompactAlertView(alert: alert, isActive: isActiveFire(alert))
+                                    // Show non-fire alerts first
+                                    ForEach(sortedAlerts.filter { $0.type != .fire }) { alert in
+                                        CompactAlertView(alert: alert, isActive: true)
                                             .onTapGesture {
-                                                if alert.type == .fire {
+                                                withAnimation {
+                                                    region.center = alert.coordinate
+                                                    region.span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+                                                }
+                                            }
+                                    }
+                                    
+                                    // Then show fire alerts
+                                    if !sortedAlerts.filter({ $0.type == .fire }).isEmpty {
+                                        Text("Active Fires")
+                                            .font(.headline)
+                                            .foregroundColor(.black)
+                                            .padding(.top, 8)
+                                        
+                                        ForEach(sortedAlerts.filter { $0.type == .fire }) { alert in
+                                            CompactAlertView(alert: alert, isActive: isActiveFire(alert))
+                                                .onTapGesture {
                                                     withAnimation {
                                                         region.center = alert.coordinate
                                                         region.span = MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
                                                     }
                                                 }
-                                            }
+                                        }
                                     }
                                 }
                                 .padding(.horizontal)
@@ -679,6 +696,16 @@ struct ContentView: View {
                     .padding()
                 }
             }
+        }
+    }
+
+    var sortedAlerts: [AlertItem] {
+        weatherViewModel.alertItems.sorted { alert1, alert2 in
+            // Sort by type (non-fire first) and then by source
+            if alert1.type != alert2.type {
+                return alert1.type != .fire
+            }
+            return alert1.source < alert2.source
         }
     }
 
@@ -740,8 +767,7 @@ struct CompactAlertView: View {
                 .font(.system(size: 16))
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(alert.type == .fire ? "Fire Alert" : 
-                     alert.type == .thunder ? "Thunderstorm Alert" : "Weather Alert")
+                Text(alertTitle)
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundColor(.black)
@@ -761,6 +787,14 @@ struct CompactAlertView: View {
         .background(Color.white)
         .cornerRadius(8)
         .contentShape(Rectangle())
+    }
+    
+    private var alertTitle: String {
+        switch alert.type {
+        case .fire: return "Fire Alert"
+        case .thunder: return "Thunderstorm Alert"
+        case .other: return "Weather Alert"
+        }
     }
     
     private var iconName: String {
