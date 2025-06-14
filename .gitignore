@@ -1,0 +1,43 @@
+# Xcode
+*.xcuserstate
+*.xcuserdatad
+xcuserdata/
+DerivedData/
+
+# iOS
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# macOS
+.DS_Store
+
+# Swift Package Manager
+.build/
+Packages/
+Package.pins
+Package.resolved
+*.xcodeproj
+!default.xcodeproj
+
+# CocoaPods
+Pods/
+*.xcworkspace
+!default.xcworkspace
+
+# Carthage
+Carthage/Build/
+
+# Accio dependency management
+Dependencies/
+.accio/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Code Injection
+iOSInjectionProject/
+
